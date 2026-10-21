@@ -9,7 +9,7 @@ function MainMenu() {
         <span className="corner corner-tr" />
         <span className="corner corner-bl" />
         <span className="corner corner-br" />
-        <h1>TITLE (TBD)</h1>
+        <h1>Haxagon Food Pantry</h1>
       </div>
       <p className="subtitle">Please choose one to get started!</p>
       <div className="nav-cards">

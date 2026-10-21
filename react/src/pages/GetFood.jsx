@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './Pages.css'
 import './GetFood.css'
 
@@ -69,6 +69,7 @@ function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
 }
 
 function GetFood() {
+  const navigate = useNavigate()
   const [items, setItems] = useState([])
   // loads, 'offline' if the API couldn't be reached.
   const [status, setStatus] = useState('loading')
@@ -105,6 +106,23 @@ function GetFood() {
     () => Object.values(cart).reduce((sum, qty) => sum + qty, 0),
     [cart],
   )
+
+  // cart is keyed by food_item_id (as a string, since object keys always are).
+  // resolve it against the loaded items so Checkout gets names/categories too.
+  const cartItems = useMemo(
+    () =>
+      Object.entries(cart)
+        .map(([foodItemId, quantity]) => ({
+          item: items.find((item) => String(item.food_item_id) === foodItemId),
+          quantity,
+        }))
+        .filter((entry) => entry.item),
+    [cart, items],
+  )
+
+  function goToCheckout() {
+    navigate('/checkout', { state: { cartItems } })
+  }
 
   function addToCart(item) {
     setCart((prev) => ({ ...prev, [item.food_item_id]: (prev[item.food_item_id] ?? 0) + 1 }))
@@ -162,8 +180,7 @@ function GetFood() {
 
         <div className="cart-summary">
           <span>Cart: {cartCount} item{cartCount === 1 ? '' : 's'}</span>
-          {/* TODO - disabled until checkout page is done */}
-          <button type="button" className="checkout-btn" disabled title="Checkout isn't built yet">
+          <button type="button" className="checkout-btn" onClick={goToCheckout} disabled={cartCount === 0}>
             Checkout
           </button>
         </div>
