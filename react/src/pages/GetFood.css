@@ -118,8 +118,6 @@
 
 .food-pill {
   font-size: 11px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: var(--surface-ink);
   background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;

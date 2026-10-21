@@ -12,7 +12,6 @@ function MainMenu() {
         <h1>TITLE (TBD)</h1>
       </div>
       <p className="subtitle">Please choose one to get started!</p>
-
       <div className="nav-cards">
         <Link to="/get-food" className="nav-card">
           <h2>Get Food</h2>
