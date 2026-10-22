@@ -1,43 +1,167 @@
-# SoSE Hackathon 2026 *(name TBD)*
+# Haxagon Food Pantry
 
-A web app that connects people with surplus food to people who need it! Users can browse and claim available food, donate food they don't need, and get recipe suggestions based on what's in their cart.
+A food pantry website designed for the CSUN Food Pantry.
 
-Built for the Society of Software Engineers Hackathon 2026.
+- **Students** browse what's in stock and build a cart. The cart checks it covers the food groups. Then they check out for pickup.
+- **Donors** place food on a Wi-Fi scale. The weight fills in by itself, and the food goes straight into stock.
+- **Pantry staff** use one dashboard for pickups to hand out, stock levels, recent donations, trends and the scale's status.
 
-## Tech stack
+Built for the Society of Software Engineers Hackathon 2026. It isn't connected to the real pantry. It runs on its own Supabase database with sample foods.
 
-- [React](https://react.dev/) 19
-- [Vite](https://vite.dev/) for dev server & bundling
-- [React Router](https://reactrouter.com/) for client-side navigation
+## What's done
 
-## Getting Started
+| Feature | Status |
+|---|---|
+| Get Food: browse stock, cart saved in the browser (survives a refresh) | Done |
+| Food-group check on the cart, "Recommend food" fills a missing group | Done |
+| Checkout: pickup request, stock checked on the server, stock goes down | Done |
+| Donate Food: "We're low on" list, live scale weight, multi-item donations | Done |
+| ESP32 scale: sends the weight each time it settles | Done (firmware written; needs flashing and a real-hardware test) |
+| Pantry staff dashboard: pickups, stock, trends, donations, scale status | Done |
+| Staff can reject part of a donation (e.g. 1 dented can of 5) | Done |
+| Stock can never go negative | Done |
+| Recipe suggestions from the cart | Not started |
+| Real staff accounts (currently one shared passcode) | Not started |
 
-**Prerequisites:** [Node.js](https://nodejs.org/) and npm.
+## How it works
+
+```mermaid
+flowchart LR
+  scale["ESP32 scale"] -- "weight settles" --> api
+  donate["Donate Food"] -- "live weight, submit" --> api
+  getfood["Get Food + Checkout"] -- "stock, pickup" --> api
+  admin["Pantry staff"] -- "passcode" --> api
+  api["Express API<br/>server/"] --> db[("Supabase<br/>tables + inventory view")]
+```
+
+The website and the scale only talk to the Express API. Only the API holds the Supabase key, and the database tables are locked to everything else.
+
+### Donating with the scale
+1. The donor opens Donate Food. A "We're low on" panel lists foods with 2 or fewer left. Tapping one selects it.
+2. They choose a food and place it on the scale.
+3. When the weight holds steady (within 3 g for 1 s), the ESP32 sends it to `POST /api/scale-reading` with the scale key.
+4. The page checks for new readings every 2 s:
+   - If a food is chosen, the item is added to the donation list with its weight.
+   - If not, the weight waits in the form until they choose one.
+   - A reading that was already there when the page opened is never added.
+5. **Submit donation** saves it. Each weighed item keeps a link to its scale reading, and it counts as stock right away.
+
+### Getting food
+1. Get Food lists every food with how many are left. If the server is down, it shows example items.
+2. The cart is saved in the browser (localStorage), so it survives a refresh and is shared with Checkout.
+3. The food-group panel shows which groups (grains, protein, vegetables, fruits, dairy) the cart covers. It only asks for groups the pantry actually has in stock. **Recommend food** adds something from a missing group.
+4. **Confirm pickup** sends the cart to `POST /api/pickups`. The server checks stock again and refuses if anything ran out, then saves the pickup and empties the cart.
+
+### Running the pantry (staff)
+"Pantry staff" at the bottom of the main menu opens `/admin`. It asks once per browser session for the passcode (`ADMIN_KEY`). The dashboard refreshes every 30 s and shows:
+
+- **Summary tiles:** pickups waiting, items in stock, donations in the last 7 days, and foods expiring within 7 days.
+- **Pickups waiting,** oldest first: **Mark picked up**, or **Cancel**, which puts the food back in stock.
+- **Stock,** lowest first, labeled Out of stock, Low, Expires in N days, or OK.
+- **A 14-day chart** of items donated vs picked up, with hover details and a table view.
+- **Recent donations:** **Reject some** on any item (dented, opened, expired), **Change rejected**, or **Restore all**.
+- **Scale status:** the last reading and whether it's active (a reading in the last 10 minutes).
+- **Pickup history:** picked-up and cancelled pickups, which can be moved back to waiting.
+
+### Stock rules
+Stock comes from the `inventory` view in `supabase/schema.sql`:
+
+> stock = items donated − items rejected by staff − items in pickups that weren't cancelled
+
+It never shows below 0. The API also refuses anything that would oversell:
+- a checkout for more than is in stock
+- rejecting items that were already picked up
+- reopening a cancelled pickup after its food ran out
+
+## Project layout
+
+| Folder | What's in it |
+|---|---|
+| `react/` | The website (React 19, Vite, React Router) |
+| `react/src/pages/` | One file per page, plus its CSS |
+| `react/src/cart.js` | The saved cart, shared by Get Food and Checkout |
+| `react/src/foodGroups.js`, `FoodGroupCheck.jsx` | The food-group check |
+| `server/` | Express API |
+| `server/src/routes/` | One file per group of routes |
+| `server/scripts/fake-scale.js` | Pretends to be the scale, for testing without hardware |
+| `supabase/schema.sql` | The whole database: tables, inventory view, security |
+| `supabase/seed.sql` | Demo data: 12 foods and two weeks of donations and pickups |
+| `firmware/scale_station/` | ESP32 scale firmware (Wi-Fi + sends readings) |
+| `firmware/scale_test/` | Bench test and calibration sketch for the scale |
+| `hardware/` | OpenSCAD source and STL files for the 3D-printed scale plate |
+
+## Getting started
+
+**Prerequisites:** [Node.js](https://nodejs.org/) 22+ and npm, plus a Supabase project.
+
+### 1. Database
+In the Supabase SQL Editor, run these two files in order. Both are safe to run again.
+
+1. `supabase/schema.sql`
+2. `supabase/seed.sql` (demo data: 12 foods, two weeks of donations and pickups, 2 pickups waiting)
+
+To change the schema later, edit `schema.sql`, then run just the new statement by hand (for example `alter table ... add column if not exists ...`). That keeps the file the one source of truth.
+
+### 2. Server
+Create `server/.env`:
 
 ```bash
-git clone <repo-url>
-cd sose-hackathon-2026/react
+SUPABASE_URL=https://<project>.supabase.co
+SUPABASE_SECRET_KEY=<service role key>   # server only, never in the browser or the ESP32
+SCALE_API_KEY=<any long random string>   # the ESP32 sends this; must match its secrets.h
+ADMIN_KEY=<staff passcode>               # typed in on the Pantry staff page
+```
+
+```bash
+cd server
 npm install
-npm run dev
+npm run dev        # API on http://localhost:3000, restarts on save
 ```
 
-Then open the local URL Vite prints (usually `http://localhost:5173`). 
+`GET http://localhost:3000/api/health` should return `{"ok":true,"database":"connected"}`.
 
-Other scripts (run from `react/`):
-
+### 3. Website
 ```bash
-npm run build    # production build
-npm run preview  # preview the production build locally
-npm run lint      # run oxlint
+cd react
+npm install
+npm run dev        # http://localhost:5173
 ```
+
+The website looks for the API at `http://localhost:3000`. To change that, copy `react/.env.example` to `react/.env` and set `VITE_API_URL`.
+
+Other scripts (from `react/`): `npm run build` (production build), `npm run preview` (serve that build), `npm run lint` (oxlint).
+
+### 4. Scale (optional)
+1. Copy `firmware/scale_station/secrets.example.h` to `secrets.h`. That file is gitignored.
+2. Fill in:
+   - **Wi-Fi:** a 2.4 GHz phone hotspot.
+   - **Server address:** your laptop's IP on that hotspot.
+   - **`SCALE_API_KEY`:** the same value as in `server/.env`.
+3. Flash `scale_station.ino` to the ESP32. It needs the HX711 and Adafruit SSD1306 libraries.
+4. Calibrate it with the `firmware/scale_test` sketch first. The pin map is in `CLAUDE.md`.
+
+### Testing without the scale
+With the server running, `npm run fake-scale` (from `server/`) sends readings exactly as the ESP32 does. Type a weight and press Enter, or pass several at once: `npm run fake-scale -- 412 250 800`. Keep Donate Food open to watch them arrive.
 
 ## Pages
 
-| # | Page | Component | Links to | Description |
-|---|------|-----------|----------|---------------|
-| 1 | Main Menu | `<MainMenu />` | Built | Get Food, Donate Food | Navigation hub — no content of its own, just routes into the app. |
-| 2 | Get Food | `<GetFood />` | Checkout | Browse available food, add items to a cart, "Recommend food" button. |
-| 3 | Donate Food | `<DonateFood />` | Main Menu | Enter an item (name, quantity, expiration date), add multiple items to a donation list, "Submit Donation" button. |
-| 4 | Checkout | `<Checkout />` | Recipes | Review selected items, "Recommend food" button, recipe suggestions panel. |
-| 5 | Recipes | `<Recipes />` | Checkout | Recipe suggestions based on what's in the cart, flagging which ingredients are missing, with an "Add missing ingredients" button. |
+| Page | Route | What it does |
+|---|---|---|
+| Main Menu | `/` | Get Food or Donate Food, plus a small "Pantry staff" link |
+| Get Food | `/get-food` | Stock, saved cart, food-group check, Recommend food |
+| Checkout | `/checkout` | Review the cart, name and email, confirm pickup |
+| Donate Food | `/donate-food` | "We're low on", live scale weight, donation list, submit |
+| Pantry staff | `/admin` | Staff dashboard (passcode) |
 
+## API
+
+| Method | Route | Used by |
+|---|---|---|
+| GET | `/api/health` | Checking the server can reach the database |
+| GET | `/api/inventory` | Get Food, Checkout, Donate Food, Pantry staff |
+| POST | `/api/pickups` | Checkout |
+| POST | `/api/donations` | Donate Food |
+| POST | `/api/scale-reading` | The ESP32, with header `x-scale-key` |
+| GET | `/api/scale-reading/latest?station=intake-1` | Donate Food (live weight) |
+| GET | `/api/admin/check`, `pickups`, `donations`, `trends`, `scale-readings` | Pantry staff, with header `x-admin-key` |
+| PATCH | `/api/admin/pickups/:id`, `donation-items/:id` | Pantry staff: pickup status, rejected count |

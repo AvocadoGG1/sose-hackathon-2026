@@ -22,7 +22,7 @@ A food pantry website designed for the CSUN Food Pantry. It is not integrated wi
 | Layer    | Tech |
 |----------|------|
 | Frontend | React |
-| Backend  | Python |
+| Backend  | Node.js + Express (`/server`) |
 | Database | Supabase |
 | Hardware | ESP32 (Arduino C++), HX711 + 10 kg bar load cell, 0.96" SSD1306 I2C OLED, button, buzzer, LED |
 
@@ -39,15 +39,23 @@ Each person owns their area. Don't edit someone else's folders without asking.
 | evan   | QA testing |
 | justin | floater (frontend first, then backend/db) |
 
+## Admin
+
+`/admin` ("Pantry staff" on the main menu) is the staff dashboard. It's protected by one shared passcode: `ADMIN_KEY` in `server/.env`, sent as the `x-admin-key` header to `/api/admin/*` (see `server/src/keys.js` and `server/src/routes/admin.js`).
+
+- Donations count in stock as soon as they're submitted. Staff can reject part of any donated item (`donation_items.rejected_quantity`, e.g. 1 dented can of 5); only `quantity - rejected_quantity` counts in the `inventory` view. Setting it back to 0 restores them.
+- Stock never goes negative: the API refuses to reject more than is still in stock, or to reopen a cancelled pickup without enough stock, and the view clamps `total_quantity` at 0.
+- Pickups go `submitted` → `picked_up` or `cancelled`. Cancelling puts the food back in stock.
+
 ## Hardware
 
-**Scale → API:** the ESP32 sends `POST /api/scale-reading` with a secret key header and this body:
+**Scale → API:** each time a weight settles, the ESP32 (`firmware/scale_station`) sends `POST /api/scale-reading` with the header `x-scale-key: <SCALE_API_KEY>` and this body:
 
 ```json
 { "station": "intake-1", "grams": 1240 }
 ```
 
-The backend attaches the reading to the donor's active pledge. Use a 2.4 GHz phone hotspot for Wi-Fi.
+The server saves it to `scale_readings` (`station` → `device_id`) and replies `201` with the new row. The Donate page polls `GET /api/scale-reading/latest?station=intake-1` for the current weight and stores that reading's `id` as `donation_items.scale_reading_id` when the donor submits. Use a 2.4 GHz phone hotspot for Wi-Fi; Wi-Fi, the backend URL and the key go in `firmware/scale_station/secrets.h` (copy `secrets.example.h`).
 
 **ESP32 pin map**
 
