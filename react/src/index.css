@@ -9,13 +9,9 @@
   --accent: #c2701f;
   --accent-bg: rgba(194, 112, 31, 0.12);
   --accent-border: rgba(194, 112, 31, 0.5);
-  --social-bg: rgba(239, 228, 205, 0.5);
-  --shadow:
-    rgba(74, 50, 32, 0.18) 0 10px 15px -3px, rgba(74, 50, 32, 0.1) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Fredoka', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -44,13 +40,6 @@
     --accent: #e2953f;
     --accent-bg: rgba(226, 149, 63, 0.18);
     --accent-border: rgba(226, 149, 63, 0.55);
-    --social-bg: rgba(53, 37, 21, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
   }
 }
 
@@ -96,19 +85,4 @@ h2 {
 }
 p {
   margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }

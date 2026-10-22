@@ -1,0 +1,18 @@
+# One .gitignore for the whole repo.
+
+# Dependencies and build output
+node_modules/
+dist/
+
+# Secrets: server keys, local env overrides, the scale's Wi-Fi and key
+.env
+*.local
+firmware/**/secrets.h
+
+# Logs
+*.log
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
