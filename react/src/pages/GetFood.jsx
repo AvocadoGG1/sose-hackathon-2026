@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Cart, useCart } from '../cart.js'
+import { formatDate } from '../dates.js'
 import { missingGroups } from '../foodGroups.js'
 import FoodGroupCheck from '../FoodGroupCheck.jsx'
 import './Pages.css'
@@ -8,7 +9,7 @@ import './GetFood.css'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
-// this isntead of blank page if API can't be reached 
+// this instead of blank page if API can't be reached 
 // same items as supabase, so still looks like real data (testing)
 const FALLBACK_ITEMS = [
   { food_item_id: 'fallback-1', name: 'Apples', category: 'Produce', food_group: 'fruits', total_quantity: 2 },
@@ -41,7 +42,7 @@ function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
 
       <p className="food-meta">
         {available !== null ? `${available} available` : 'Stock unknown'}
-        {item.earliest_expiration && ` · best before ${item.earliest_expiration}`}
+        {item.earliest_expiration && ` · best before ${formatDate(item.earliest_expiration)}`}
       </p>
 
       <div className="food-card-actions">

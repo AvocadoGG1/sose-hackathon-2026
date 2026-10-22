@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { adminFetch, fetchInventory, getAdminKey, PasscodeError, setAdminKey } from '../adminApi.js'
+import { formatDate } from '../dates.js'
 import { FOOD_GROUPS } from '../foodGroups.js'
 import AdminTrendChart from './AdminTrendChart.jsx'
 import './Pages.css'
@@ -312,7 +313,7 @@ function Dashboard({ onSignOut }) {
                         <td>{groupLabel(item.food_group)}</td>
                         <td className="num">{left}</td>
                         <td className="num">{Number(item.total_weight_grams) > 0 ? `${Number(item.total_weight_grams).toLocaleString()} g` : '—'}</td>
-                        <td>{item.earliest_expiration ?? '—'}</td>
+                        <td>{item.earliest_expiration ? formatDate(item.earliest_expiration) : '—'}</td>
                         <td className="admin-pills">
                           {left <= 0 && <span className="admin-pill pill-bad">Out of stock</span>}
                           {left > 0 && left <= LOW_STOCK && <span className="admin-pill pill-warn">Low</span>}
@@ -368,7 +369,7 @@ function Dashboard({ onSignOut }) {
                                     {item.quantity}× {name}
                                     {item.weight_grams != null && ` · ${Number(item.weight_grams)} g`}
                                     {item.scale_reading_id != null && <span className="admin-pill pill-scale">scale</span>}
-                                    {item.expiration_date && <span className="admin-muted"> · best before {item.expiration_date}</span>}
+                                    {item.expiration_date && <span className="admin-muted"> · best before {formatDate(item.expiration_date)}</span>}
                                     {item.rejected_quantity > 0 && (
                                       <span className="admin-pill pill-bad">{item.rejected_quantity} rejected</span>
                                     )}

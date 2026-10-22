@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { formatDate } from '../dates.js'
 import { FOOD_GROUPS, groupsInStock, listGroups } from '../foodGroups.js'
 import './Pages.css'
 import './GetFood.css'
@@ -351,7 +352,7 @@ function DonateFood() {
                     ×{item.quantity}
                     {item.weightGrams != null && ` · ${item.weightGrams} g`}
                     {item.scaleReadingId != null && ' (scale)'}
-                    {item.expirationDate && ` · best before ${item.expirationDate}`}
+                    {item.expirationDate && ` · best before ${formatDate(item.expirationDate)}`}
                   </span>
                   <button type="button" className="checkout-remove-btn" onClick={() => removeItem(item.key)}>
                     Remove
