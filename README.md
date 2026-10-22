@@ -137,8 +137,8 @@ Other scripts (from `react/`): `npm run build` (production build), `npm run prev
    - **Wi-Fi:** a 2.4 GHz phone hotspot.
    - **Server address:** your laptop's IP on that hotspot.
    - **`SCALE_API_KEY`:** the same value as in `server/.env`.
-3. Flash `scale_station.ino` to the ESP32. It needs the HX711 and Adafruit SSD1306 libraries.
-4. Calibrate it with the `firmware/scale_test` sketch first. The pin map is in `CLAUDE.md`.
+3. Flash `scale_station.ino` to the ESP32. It needs the HX711 (Bogdan Necula) and Adafruit SSD1306 libraries.
+4. Calibrate it with the `firmware/scale_test` sketch first. Wiring is in [Scale hardware](#scale-hardware) below.
 
 ### Testing without the scale
 With the server running, `npm run fake-scale` (from `server/`) sends readings exactly as the ESP32 does. Type a weight and press Enter, or pass several at once: `npm run fake-scale -- 412 250 800`. Keep Donate Food open to watch them arrive.
@@ -165,3 +165,41 @@ With the server running, `npm run fake-scale` (from `server/`) sends readings ex
 | GET | `/api/scale-reading/latest?station=intake-1` | Donate Food (live weight) |
 | GET | `/api/admin/check`, `pickups`, `donations`, `trends`, `scale-readings` | Pantry staff, with header `x-admin-key` |
 | PATCH | `/api/admin/pickups/:id`, `donation-items/:id` | Pantry staff: pickup status, rejected count |
+
+## Scale hardware
+
+ESP32 (Arduino C++), HX711 amplifier with a 10 kg bar load cell, 0.96" SSD1306 I2C OLED, a button, a buzzer and an LED.
+
+**Wiring**
+
+| Part | Connection |
+|------|------------|
+| Load cell red / black / green / white | HX711 E+ / E− / A+ / A− |
+| HX711 VCC / GND | 3.3V / GND |
+| HX711 DT / SCK | GPIO 16 / GPIO 4 |
+| OLED VCC / GND | 3.3V / GND |
+| OLED SDA / SCL | GPIO 21 / GPIO 22 |
+| Button | GPIO 13 + GND (`INPUT_PULLUP`) |
+| Buzzer | GPIO 25 / GND |
+| LED | GPIO 26 → 220 Ω resistor → LED → GND |
+
+On the scale: tap the button to tare, hold it 2 s to switch between raw counts and grams. Two short beeps mean a reading was saved; one long beep means it wasn't sent. The Serial Monitor (115200 baud) takes `t` (tare), `c 500` (calibrate with a known 500 g item), `r`, `b` and `s` (send the current weight).
+
+**3D-printed plate:** `hardware/scale_plate.scad` is a parametric OpenSCAD plate (150 × 150 × 6 mm with a 5 mm spacer pad, 5.5 mm bolt holes and 10.5 × 3 mm head recesses). Its `variant` parameter produces two parts. Print one of each in PLA on a Prusa MK4 with the pad facing up and no supports.
+- `scale_plate_bottom.stl` sits pad-up on the table and bolts to the **cable end** of the load cell (the fixed end). Its underside has a "FRONT" arrow and an assembly note.
+- `scale_plate_top.stl` is flipped end to end and bolts to the other end (the free end, which takes the load). The bar's printed arrow points down.
+- Both plates have 5.5 mm holes, so use whichever bolt fits each end's threads: M4x20 + washer or M5x20.
+- The top plate's flat face is the food surface, debossed with the Haxagon logo. The load cell was measured with calipers: 80 × 13 × 13 mm, holes 4.75 mm from the end and 15 mm apart.
+
+## Team
+
+| Person | Area |
+|--------|------|
+| Daniel | Database |
+| Hanna | Frontend |
+| Andrew | Hardware (`hardware/`, `firmware/`) |
+| Jose | Backend |
+| Evan | QA testing |
+| Justin | Frontend and backend |
+
+Work on a branch and merge to `main` through a pull request.

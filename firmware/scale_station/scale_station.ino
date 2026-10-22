@@ -16,7 +16,7 @@
 //
 // Copy secrets.example.h to secrets.h and fill in Wi-Fi and the backend address.
 // The calibration factor is saved to flash, so it survives a reboot.
-// Pins follow the map in CLAUDE.md.
+// Pins follow the wiring table in README.md (Scale hardware).
 
 #include <Wire.h>
 #include <WiFi.h>

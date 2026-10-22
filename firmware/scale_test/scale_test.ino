@@ -13,7 +13,7 @@
 //   b        test the buzzer and LED
 //
 // The calibration factor is saved to flash, so it survives a reboot.
-// Pins follow the map in CLAUDE.md.
+// Pins follow the wiring table in README.md (Scale hardware).
 
 #include <Wire.h>
 #include <Adafruit_GFX.h>

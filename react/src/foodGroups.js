@@ -1,4 +1,4 @@
-// Food-group check for the cart (CLAUDE.md: warn when nutrition needs aren't met
+// Food-group check for the cart (project spec: warn when nutrition needs aren't met
 // by food group, not calories). Groups follow USDA MyPlate; each food's group comes
 // from food_items.food_group via GET /api/inventory.
 
