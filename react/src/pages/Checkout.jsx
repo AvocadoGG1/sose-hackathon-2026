@@ -1,39 +1,48 @@
-import { useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Cart, useCart } from '../cart.js'
+import FoodGroupCheck from '../FoodGroupCheck.jsx'
 import './Pages.css'
 import './Checkout.css'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
 
 function Checkout() {
-  const location = useLocation()
-
-  // cartItems arrives as router state from Get Food: [{ item, quantity }].
-  // A direct visit/refresh has no state, so there's nothing to check out.
-  const [lines, setLines] = useState(() => location.state?.cartItems ?? [])
+  // same cart as Get Food: [{ item, quantity }], saved to localStorage by cart.js,
+  // so a refresh or direct visit still shows it.
+  const lines = useCart()
   const [recipientName, setRecipientName] = useState('')
   const [recipientEmail, setRecipientEmail] = useState('')
   const [notes, setNotes] = useState('')
   const [status, setStatus] = useState('idle') // idle | submitting | done | error
   const [errorMessage, setErrorMessage] = useState('')
   const [pickupId, setPickupId] = useState(null)
+  // inventory, only for the food-group check (which groups are in stock to suggest)
+  const [inventory, setInventory] = useState([])
 
-  const totalCount = useMemo(() => lines.reduce((sum, line) => sum + line.quantity, 0), [lines])
+  useEffect(() => {
+    let cancelled = false
+    fetch(`${API_BASE}/api/inventory`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (!cancelled) setInventory(data)
+      })
+      .catch(() => {
+        // offline: the check falls back to the cart's own items and just skips the warning
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const totalCount = lines.reduce((sum, line) => sum + line.quantity, 0)
 
   function updateQuantity(foodItemId, delta) {
-    setLines((prev) =>
-      prev
-        .map((line) =>
-          line.item.food_item_id === foodItemId
-            ? { ...line, quantity: line.quantity + delta }
-            : line,
-        )
-        .filter((line) => line.quantity > 0),
-    )
+    Cart.setQuantity(foodItemId, Cart.quantityOf(foodItemId) + delta)
   }
 
   function removeLine(foodItemId) {
-    setLines((prev) => prev.filter((line) => line.item.food_item_id !== foodItemId))
+    Cart.remove(foodItemId)
   }
 
   async function submitOrder(event) {
@@ -61,6 +70,7 @@ function Checkout() {
 
       setPickupId(data.pickup_id)
       setStatus('done')
+      Cart.clear()
     } catch (err) {
       setErrorMessage(err.message)
       setStatus('error')
@@ -142,6 +152,12 @@ function Checkout() {
           </li>
         ))}
       </ul>
+
+      <FoodGroupCheck
+        lines={lines}
+        items={inventory.length > 0 ? inventory : lines.map((line) => line.item)}
+        hint={<Link to="/get-food">Go back to Get Food to add some.</Link>}
+      />
 
       <p className="checkout-total">
         Total: {totalCount} item{totalCount === 1 ? '' : 's'}

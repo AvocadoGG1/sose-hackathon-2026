@@ -1,0 +1,128 @@
+.scale-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+
+.scale-label {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.scale-weight {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--surface-ink);
+}
+
+.scale-age {
+  font-size: 13px;
+  color: var(--surface-ink);
+  opacity: 0.85;
+  flex: 1;
+}
+
+.most-needed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: inset 4px 0 0 var(--accent);
+  font-size: 14px;
+  color: var(--surface-ink);
+}
+
+.most-needed p {
+  margin: 0;
+}
+
+.most-needed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.most-needed-list button {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-h);
+  background: var(--accent);
+  border: none;
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.most-needed-list button span {
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.most-needed-list button:focus-visible {
+  outline: 2px solid var(--surface-ink);
+  outline-offset: 2px;
+}
+
+.scale-message {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 14px;
+  color: var(--surface-ink);
+}
+
+.checkout-form select {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.donate-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.donate-row input {
+  min-width: 0;
+}
+
+.donate-add-btn {
+  align-self: flex-start;
+}
+
+.donate-entry {
+  margin-bottom: 24px;
+}
+
+.donate-list {
+  margin-bottom: 24px;
+}
+
+.donate-line-meta {
+  font-size: 13px;
+  color: var(--surface-ink);
+}
+
+@media (max-width: 480px) {
+  .donate-row {
+    grid-template-columns: 1fr;
+  }
+}
