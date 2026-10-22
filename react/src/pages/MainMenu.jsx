@@ -25,7 +25,7 @@ function MainMenu() {
       </div>
 
       <Link to="/admin" className="staff-link">
-        Pantry staff
+        Pantry Staff
       </Link>
     </section>
   )

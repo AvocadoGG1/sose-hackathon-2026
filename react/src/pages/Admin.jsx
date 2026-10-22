@@ -65,7 +65,7 @@ function PasscodeScreen({ onSuccess }) {
       <Link to="/" className="back-link">
         ← Back to Main Menu
       </Link>
-      <h1>Pantry staff</h1>
+      <h1>Pantry Staff</h1>
       <p className="subtitle">Enter the staff passcode to see pickups, stock and donations.</p>
       <form className="admin-panel admin-login-form" onSubmit={submit}>
         <label htmlFor="admin-passcode">Staff passcode</label>
@@ -203,7 +203,7 @@ function Dashboard({ onSignOut }) {
         </div>
       </div>
 
-      <h1>Pantry dashboard</h1>
+      <h1>Pantry Dashboard</h1>
 
       {errorMessage && <p className="admin-error">{errorMessage}</p>}
 
@@ -314,14 +314,16 @@ function Dashboard({ onSignOut }) {
                         <td className="num">{left}</td>
                         <td className="num">{Number(item.total_weight_grams) > 0 ? `${Number(item.total_weight_grams).toLocaleString()} g` : '—'}</td>
                         <td>{item.earliest_expiration ? formatDate(item.earliest_expiration) : '—'}</td>
-                        <td className="admin-pills">
-                          {left <= 0 && <span className="admin-pill pill-bad">Out of stock</span>}
-                          {left > 0 && left <= LOW_STOCK && <span className="admin-pill pill-warn">Low</span>}
-                          {left > 0 && days != null && days < 0 && <span className="admin-pill pill-bad">Expired</span>}
-                          {left > 0 && days != null && days >= 0 && days <= EXPIRING_DAYS && (
-                            <span className="admin-pill pill-warn">Expires in {days} d</span>
-                          )}
-                          {left > LOW_STOCK && (days == null || days > EXPIRING_DAYS) && <span className="admin-pill pill-good">OK</span>}
+                        <td>
+                          <div className="admin-pills">
+                            {left <= 0 && <span className="admin-pill pill-bad">Out of stock</span>}
+                            {left > 0 && left <= LOW_STOCK && <span className="admin-pill pill-warn">Low</span>}
+                            {left > 0 && days != null && days < 0 && <span className="admin-pill pill-bad">Expired</span>}
+                            {left > 0 && days != null && days >= 0 && days <= EXPIRING_DAYS && (
+                              <span className="admin-pill pill-warn">Expires in {days} d</span>
+                            )}
+                            {left > LOW_STOCK && (days == null || days > EXPIRING_DAYS) && <span className="admin-pill pill-good">OK</span>}
+                          </div>
                         </td>
                       </tr>
                     )

@@ -1,16 +1,19 @@
-/* Staff dashboard. Panels are light "paper" in light mode (the brown --surface is too
-   dark for a readable chart there) and the usual dark surface in dark mode. Chart
-   colors were checked for colorblind separation and contrast on both panels. */
+/* staff dashboard */
 .admin-page {
-  --admin-panel: #f7efdf;
-  --admin-ink: #2e1f12;
-  --admin-muted: #6e5c38;
-  --admin-line: #dcc9a6;
-  --chart-donated: #c2701f;
-  --chart-picked: #2f7fb0;
-  --good: #2f7d4f;
-  --warn: #9a5a0c;
-  --bad: #b23a2c;
+  /* match the surface color used for boxes on every other page in light
+     mode, instead of the separate lighter "paper" panel this used to use.
+     The muted/line/chart/status colors below are the ones this file
+     already used for its dark panel, reused here since a brown panel
+     needs the same lighter-toned text and chart colors either way. */
+  --admin-panel: var(--surface);
+  --admin-ink: var(--surface-ink);
+  --admin-muted: #c7ab87;
+  --admin-line: #5b4530;
+  --chart-donated: #cf7c22;
+  --chart-picked: #3a8fc8;
+  --good: #6cc48d;
+  --warn: #e9a948;
+  --bad: #ef7a6a;
 
   justify-content: flex-start;
   align-items: stretch;
@@ -22,7 +25,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .admin-page {
+  :root:not([data-theme='light']) .admin-page {
     --admin-panel: #3f2c1a;
     --admin-ink: #f1e4cd;
     --admin-muted: #c7ab87;
@@ -33,6 +36,18 @@
     --warn: #e9a948;
     --bad: #ef7a6a;
   }
+}
+
+:root[data-theme='dark'] .admin-page {
+  --admin-panel: #3f2c1a;
+  --admin-ink: #f1e4cd;
+  --admin-muted: #c7ab87;
+  --admin-line: #5b4530;
+  --chart-donated: #cf7c22;
+  --chart-picked: #3a8fc8;
+  --good: #6cc48d;
+  --warn: #e9a948;
+  --bad: #ef7a6a;
 }
 
 .admin-page h1 {
@@ -53,10 +68,6 @@
 }
 
 /* ---- passcode screen ---- */
-.admin-login {
-  max-width: 440px;
-}
-
 .admin-login h1,
 .admin-login .subtitle {
   text-align: center;
@@ -68,12 +79,15 @@
   gap: 10px;
   font-size: 14px;
   font-weight: 500;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
 }
 
 .admin-login-form input {
   font: inherit;
   color: var(--admin-ink);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
   border: 1px solid var(--admin-line);
   border-radius: 8px;
   padding: 10px 12px;
@@ -158,7 +172,7 @@
 /* ---- summary tiles ---- */
 .admin-tiles {
   list-style: none;
-  margin: 0;
+  margin: 12px 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -370,13 +384,13 @@
   font-weight: 600;
   color: var(--admin-muted);
   padding: 8px 12px 8px 0;
-  border-bottom: 1px solid var(--admin-line);
+  border-bottom: 1px solid var(--surface-ink);
   white-space: nowrap;
 }
 
 .admin-table td {
   padding: 9px 12px 9px 0;
-  border-bottom: 1px solid var(--admin-line);
+  border-bottom: 1px solid var(--surface-ink);
   vertical-align: middle;
 }
 
