@@ -1,0 +1,149 @@
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  gap: 8px;
+}
+
+.title-frame {
+  position: relative;
+  display: inline-block;
+  padding: 18px 44px;
+  margin-bottom: 8px;
+}
+
+.title-frame h1 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--accent);
+}
+
+.corner-tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+}
+
+.corner-tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 4px;
+}
+
+.corner-bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 4px;
+}
+
+.corner-br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 4px;
+}
+
+.subtitle {
+  color: var(--text);
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.nav-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.nav-card {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 26px 24px;
+  border: none;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 6px 6px 0 var(--text-h);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.nav-card:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0 var(--text-h);
+}
+
+.nav-card:active {
+  transform: translate(6px, 6px);
+  box-shadow: 0 0 0 var(--text-h);
+}
+
+.nav-card h2 {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.nav-card p {
+  color: var(--surface-ink);
+  font-size: 15px;
+  line-height: 135%;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--accent);
+  background: var(--surface);
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.back-link:hover {
+  background: var(--accent);
+  color: var(--text-h);
+}
+
+
+/* small link to the staff dashboard, kept quiet so shoppers aren't drawn to it */
+.staff-link {
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.staff-link:hover {
+  color: var(--accent);
+}
