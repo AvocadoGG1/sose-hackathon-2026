@@ -134,6 +134,16 @@
   color: var(--text-h);
 }
 
-.placeholder-page h1 {
-  margin-top: 0;
+
+/* small link to the staff dashboard, kept quiet so shoppers aren't drawn to it */
+.staff-link {
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.staff-link:hover {
+  color: var(--accent);
 }

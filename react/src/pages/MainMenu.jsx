@@ -23,6 +23,10 @@ function MainMenu() {
           <p>List food you'd like to donate!</p>
         </Link>
       </div>
+
+      <Link to="/admin" className="staff-link">
+        Pantry staff
+      </Link>
     </section>
   )
 }
