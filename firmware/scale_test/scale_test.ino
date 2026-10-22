@@ -34,6 +34,8 @@ const unsigned long HOLD_MS = 2000;
 const float STABLE_BAND_G = 3.0;      // reading must stay within this...
 const unsigned long STABLE_MS = 1000; // ...for this long to count as settled
 const float EMPTY_G = 5.0;            // below this the plate counts as empty
+const float ZERO_BAND_G = 2.0;        // OLED shows anything below this as 0 g
+const float NEG_WARN_G = 20.0;        // this far below zero: prompt a re-tare
 
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
 HX711 scale;
@@ -82,22 +84,28 @@ void drawScreen(float grams, long raw) {
   display.setTextSize(1);
   display.setCursor(0, 0);
   display.print(showRaw ? "RAW" : "Haxagon scale");
-  if (settled) {
+  if (settled && calFactor != 0) {
     display.setCursor(104, 0);
     display.print("OK");
   }
 
   display.setTextSize(2);
   display.setCursor(0, 24);
+  bool tareHint = false;
   if (showRaw || calFactor == 0) {
     display.print(raw);
   } else {
-    display.printf("%.0f g", grams);
+    // Small wobble around zero shows as 0. A big negative means the scale
+    // was zeroed with something on it, so show 0 and ask for a re-tare.
+    tareHint = grams <= -NEG_WARN_G;
+    display.printf("%.0f g", grams < ZERO_BAND_G ? 0.0f : grams);
   }
 
   display.setTextSize(1);
   display.setCursor(0, 56);
-  display.print(calFactor == 0 ? "Not calibrated: c <g>" : "Tap=tare  Hold=raw");
+  if (calFactor == 0) display.print("Not calibrated: c <g>");
+  else if (tareHint) display.print("Empty? Tap to tare");
+  else display.print("Tap=tare  Hold=raw");
   display.display();
 }
 
@@ -203,4 +211,4 @@ void loop() {
     Serial.printf("raw=%ld  net=%ld  grams=%.1f%s\n",
                   raw, raw - scale.get_offset(), grams, settled ? "  (settled)" : "");
   }
-}
+} 
