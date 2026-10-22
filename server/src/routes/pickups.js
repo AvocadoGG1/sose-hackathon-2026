@@ -69,6 +69,8 @@ router.post('/', async (req, res) => {
   )
 
   if (itemsError) {
+    // Don't leave an empty pickup behind if its items failed.
+    await supabase.from('pickups').delete().eq('id', pickup.id)
     return res.status(502).json({ error: itemsError.message })
   }
 
