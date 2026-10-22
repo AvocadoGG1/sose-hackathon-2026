@@ -242,7 +242,7 @@ function DonateFood() {
   }
 
   return (
-    <section className="page checkout-page">
+    <section className="page food-page">
       <Link to="/" className="back-link">
         ← Back to Main Menu
       </Link>
