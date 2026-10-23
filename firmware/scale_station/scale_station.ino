@@ -4,14 +4,15 @@
 // it is sent to the backend as POST /api/scale-reading.
 //   - OLED shows the weight (or raw HX711 counts until calibrated) and Wi-Fi state
 //   - Button: short press = tare, hold 2 s = toggle raw / grams view
-//   - On settle: LED lights, then two short beeps = saved, one long beep = not sent
+//   - On settle: two short beeps = saved, one long beep = not sent
+//   - Auto-zero: small drift on an empty, steady plate is zeroed out on its own
 //   - Serial Monitor (115200 baud) prints every reading and takes commands
 //
 // Serial commands (type, then Enter):
 //   t        tare (zero) with the plate empty
 //   c 500    calibrate: put a known 500 g item on the plate first
 //   r        toggle raw / grams view
-//   b        test the buzzer and LED
+//   b        test the buzzer
 //   s        send the current weight now (tests the backend connection)
 //
 // Copy secrets.example.h to secrets.h and fill in Wi-Fi and the backend address.
@@ -33,7 +34,6 @@ const int PIN_SDA = 21;
 const int PIN_SCL = 22;
 const int PIN_BUTTON = 13;
 const int PIN_BUZZER = 25;
-const int PIN_LED = 26;
 
 const char* STATION = "intake-1";
 
@@ -42,6 +42,10 @@ const unsigned long HOLD_MS = 2000;
 const float STABLE_BAND_G = 3.0;      // reading must stay within this...
 const unsigned long STABLE_MS = 1000; // ...for this long to count as settled
 const float EMPTY_G = 5.0;            // below this the plate counts as empty
+const float ZERO_BAND_G = 2.0;        // OLED shows anything below this as 0 g
+const float NEG_WARN_G = 20.0;        // this far below zero: prompt a re-tare
+const float AUTOZERO_BAND_G = 4.0;    // settled readings this close to 0 are treated as drift
+const unsigned long AUTOZERO_MS = 1000; // how often auto-zero nudges the zero point
 
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
 HX711 scale;
@@ -119,22 +123,28 @@ void drawScreen(float grams, long raw) {
   display.print(showRaw ? "RAW" : "Haxagon scale");
   display.setCursor(80, 0);
   display.print(WiFi.status() == WL_CONNECTED ? "W" : "-");
-  if (settled) {
+  if (settled && calFactor != 0) {
     display.setCursor(104, 0);
     display.print("OK");
   }
 
   display.setTextSize(2);
   display.setCursor(0, 24);
+  bool tareHint = false;
   if (showRaw || calFactor == 0) {
     display.print(raw);
   } else {
-    display.printf("%.0f g", grams);
+    // Small wobble around zero shows as 0. A big negative means the scale
+    // was zeroed with something on it, so show 0 and ask for a re-tare.
+    tareHint = grams <= -NEG_WARN_G;
+    display.printf("%.0f g", grams < ZERO_BAND_G ? 0.0f : grams);
   }
 
   display.setTextSize(1);
   display.setCursor(0, 56);
-  display.print(calFactor == 0 ? "Not calibrated: c <g>" : "Tap=tare  Hold=raw");
+  if (calFactor == 0) display.print("Not calibrated: c <g>");
+  else if (tareHint) display.print("Empty? Tap to tare");
+  else display.print("Tap=tare  Hold=raw");
   display.display();
 }
 
@@ -148,8 +158,8 @@ void handleSerial() {
   else if (cmd == 'c') doCalibrate(line.substring(1).toFloat());
   else if (cmd == 'r') { showRaw = !showRaw; Serial.println(showRaw ? "Raw view." : "Grams view."); }
   else if (cmd == 'b') {
-    Serial.println("Buzzer + LED test.");
-    digitalWrite(PIN_LED, HIGH); beep(300); delay(500); digitalWrite(PIN_LED, LOW);
+    Serial.println("Buzzer test.");
+    beep(300);
   }
   else if (cmd == 's') sendReading(max(lastGrams, 0.0f));
   else Serial.println("Commands: t, c <grams>, r, b, s");
@@ -184,11 +194,22 @@ void updateSettled(float grams) {
     settled = true;
     if (calFactor != 0 && grams > EMPTY_G) {
       Serial.printf("Settled at %.0f g\n", grams);
-      digitalWrite(PIN_LED, HIGH);
       sendReading(grams);
     }
   }
-  digitalWrite(PIN_LED, settled && calFactor != 0 && grams > EMPTY_G);
+}
+
+// Load cells drift slowly. While the plate is empty and steady, move the zero
+// point a quarter of the way toward the current reading each second, so the
+// drift is cancelled without a visible jump. The band is below EMPTY_G, so
+// anything heavy enough to be sent is never zeroed away.
+void autoZero(long raw, float grams) {
+  static unsigned long lastNudge = 0;
+  if (calFactor == 0 || !settled || fabs(grams) > AUTOZERO_BAND_G) return;
+  if (millis() - lastNudge < AUTOZERO_MS) return;
+  lastNudge = millis();
+  long offset = scale.get_offset();
+  scale.set_offset(offset + (raw - offset) / 4);
 }
 
 void logWifi() {
@@ -206,7 +227,6 @@ void setup() {
   Serial.println("\nHaxagon scale station");
 
   pinMode(PIN_BUTTON, INPUT_PULLUP);
-  pinMode(PIN_LED, OUTPUT);
   pinMode(PIN_BUZZER, OUTPUT);
 
   // Doesn't block: the ESP32 connects (and reconnects) in the background.
@@ -251,6 +271,7 @@ void loop() {
   lastGrams = grams;
 
   updateSettled(calFactor != 0 ? grams : (raw - scale.get_offset()) / 100.0);
+  autoZero(raw, grams);
   drawScreen(grams, raw - scale.get_offset());
 
   static unsigned long lastPrint = 0;

@@ -181,7 +181,6 @@ ESP32 (Arduino C++), HX711 amplifier with a 10 kg bar load cell, 0.96" SSD1306 I
 | OLED SDA / SCL | GPIO 21 / GPIO 22 |
 | Button | GPIO 13 + GND (`INPUT_PULLUP`) |
 | Buzzer | GPIO 25 / GND |
-| LED | GPIO 26 → 220 Ω resistor → LED → GND |
 
 On the scale: tap the button to tare, hold it 2 s to switch between raw counts and grams. Two short beeps mean a reading was saved; one long beep means it wasn't sent. The Serial Monitor (115200 baud) takes `t` (tare), `c 500` (calibrate with a known 500 g item), `r`, `b` and `s` (send the current weight).
 
