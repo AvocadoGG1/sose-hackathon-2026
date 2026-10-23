@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { formatDate } from '../dates.js'
+import { formatDate, isoDateFromToday, MIN_DAYS_BEFORE_EXPIRY } from '../dates.js'
 import { FOOD_GROUPS, groupsInStock, listGroups } from '../foodGroups.js'
 import './Pages.css'
 import './GetFood.css'
@@ -104,6 +104,8 @@ function DonateFood() {
   const [foodItems, setFoodItems] = useState([])
   const [status, setStatus] = useState('loading') // loading | ready | offline | submitting | done | error
   const [errorMessage, setErrorMessage] = useState('')
+  // shown under the form when a best-before date is too close
+  const [dateError, setDateError] = useState('')
   const [donationId, setDonationId] = useState(null)
 
   // the item being filled in, and the list of items already added to this donation
@@ -148,6 +150,11 @@ function DonateFood() {
     updateEntry({ weightGrams: String(Number(scaleReading.weight_grams)), scaleReadingId: scaleReading.id })
   }
 
+  // best-before dates earlier than this are refused (no food that's about to expire)
+  const earliestBestBefore = isoDateFromToday(MIN_DAYS_BEFORE_EXPIRY)
+  const tooSoonMessage = `Sorry, we can't accept food that's this close to expiring. The best-before date needs to be ${formatDate(earliestBestBefore)} or later.`
+  const expiresTooSoon = (date) => Boolean(date) && date < earliestBestBefore
+
   function findFood(foodItemId) {
     return foodItems.find((item) => String(item.food_item_id) === foodItemId)
   }
@@ -169,6 +176,10 @@ function DonateFood() {
 
   function addItem(event) {
     event.preventDefault()
+    if (expiresTooSoon(entry.expirationDate)) {
+      setDateError(tooSoonMessage)
+      return
+    }
     const food = findFood(entry.foodItemId)
     if (food) pushItem(entry, food)
   }
@@ -180,7 +191,12 @@ function DonateFood() {
     const weightGrams = String(Number(reading.weight_grams))
     const food = findFood(entry.foodItemId)
 
-    if (food) {
+    if (food && expiresTooSoon(entry.expirationDate)) {
+      // don't auto-add food that's about to expire; keep the weight in case the date was a typo
+      updateEntry({ weightGrams, scaleReadingId: reading.id })
+      setDateError(tooSoonMessage)
+      setScaleMessage(`Weighed ${weightGrams} g, but this ${food.name} expires too soon to accept.`)
+    } else if (food) {
       pushItem({ ...entry, weightGrams, scaleReadingId: reading.id }, food)
       setScaleMessage(`Added ${food.name}, ${weightGrams} g. Choose the next food, then swap the item on the scale.`)
     } else {
@@ -327,11 +343,27 @@ function DonateFood() {
             Best before (optional)
             <input
               type="date"
+              min={earliestBestBefore}
               value={entry.expirationDate}
-              onChange={(e) => updateEntry({ expirationDate: e.target.value })}
+              onChange={(e) => {
+                e.target.setCustomValidity('')
+                setDateError('')
+                updateEntry({ expirationDate: e.target.value })
+              }}
+              // the browser blocks dates before `min`; show our message instead of its generic one
+              onInvalid={(e) => {
+                e.target.setCustomValidity(tooSoonMessage)
+                setDateError(tooSoonMessage)
+              }}
             />
           </label>
         </div>
+
+        {dateError && (
+          <p className="checkout-error" role="alert">
+            {dateError}
+          </p>
+        )}
 
         <button type="submit" className="recommend-btn donate-add-btn" disabled={status === 'loading' || status === 'offline'}>
           Add to donation

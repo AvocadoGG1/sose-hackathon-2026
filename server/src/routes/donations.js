@@ -1,7 +1,20 @@
 import { Router } from 'express'
 import { supabase } from '../supabase.js'
+import { PANTRY_TIME_ZONE } from '../trends.js'
 
 const router = Router()
+
+// Food must have at least this many days before its best-before date
+// (react/src/dates.js has the same number for the Donate page).
+const MIN_DAYS_BEFORE_EXPIRY = 2
+
+// Today in the pantry's time zone plus `days`, as 'YYYY-MM-DD'.
+function pantryDateFromToday(days) {
+  // en-CA formats as YYYY-MM-DD
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: PANTRY_TIME_ZONE }).format(new Date())
+  const [y, m, d] = today.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10)
+}
 
 // POST /api/donations - records a donation from the Donate Food page: one
 // `donations` row plus one `donation_items` row per item. Submitted donations
@@ -20,6 +33,18 @@ router.post('/', async (req, res) => {
     }
     if (item.weight_grams != null && !(Number.isFinite(item.weight_grams) && item.weight_grams >= 0)) {
       return res.status(400).json({ error: 'weight_grams must be a number >= 0' })
+    }
+    if (item.expiration_date) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(item.expiration_date)) {
+        return res.status(400).json({ error: 'expiration_date must look like YYYY-MM-DD' })
+      }
+      const earliest = pantryDateFromToday(MIN_DAYS_BEFORE_EXPIRY)
+      if (item.expiration_date < earliest) {
+        const [y, m, d] = earliest.split('-')
+        return res.status(400).json({
+          error: `Sorry, we can't accept food that's this close to expiring. The best-before date needs to be ${m}/${d}/${y} or later.`,
+        })
+      }
     }
   }
 
