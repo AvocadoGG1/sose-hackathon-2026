@@ -42,7 +42,7 @@ const unsigned long HOLD_MS = 2000;
 const float STABLE_BAND_G = 3.0;      // reading must stay within this...
 const unsigned long STABLE_MS = 1000; // ...for this long to count as settled
 const float EMPTY_G = 5.0;            // below this the plate counts as empty
-const float ZERO_BAND_G = 2.0;        // OLED shows anything below this as 0 g
+const float ZERO_BAND_G = 4.0;        // OLED shows anything below this as 0 g
 const float NEG_WARN_G = 20.0;        // this far below zero: prompt a re-tare
 const float AUTOZERO_BAND_G = 4.0;    // settled readings this close to 0 are treated as drift
 const unsigned long AUTOZERO_MS = 1000; // how often auto-zero nudges the zero point
@@ -208,8 +208,13 @@ void autoZero(long raw, float grams) {
   if (calFactor == 0 || !settled || fabs(grams) > AUTOZERO_BAND_G) return;
   if (millis() - lastNudge < AUTOZERO_MS) return;
   lastNudge = millis();
+  // Step at least one count, or integer division stalls a few counts
+  // (a few grams on a low-resolution load cell) short of zero.
   long offset = scale.get_offset();
-  scale.set_offset(offset + (raw - offset) / 4);
+  long error = raw - offset;
+  long step = error / 4;
+  if (step == 0 && error != 0) step = error > 0 ? 1 : -1;
+  scale.set_offset(offset + step);
 }
 
 void logWifi() {
