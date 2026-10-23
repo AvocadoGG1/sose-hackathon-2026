@@ -161,12 +161,22 @@
   border-radius: 6px;
   padding: 10px;
   cursor: pointer;
+  /* same pressable look as Recommend food / Checkout; the shadow uses the page
+     color because the card itself is --surface */
+  box-shadow: 3px 3px 0 var(--bg);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.add-btn:hover:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--bg);
 }
 
 .add-btn:disabled {
   background: rgba(255, 255, 255, 0.15);
   color: var(--surface-ink);
   cursor: default;
+  box-shadow: none;
 }
 
 .qty-stepper {
@@ -196,11 +206,19 @@
   font-weight: 700;
   cursor: pointer;
   line-height: 1;
+  box-shadow: 2px 2px 0 var(--bg);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.qty-stepper button:hover:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--bg);
 }
 
 .qty-stepper button:disabled {
   opacity: 0.4;
   cursor: default;
+  box-shadow: none;
 }
 
 @media (max-width: 640px) {
