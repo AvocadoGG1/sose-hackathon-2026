@@ -1,18 +1,22 @@
+/* palette follows the CSUN pantry's PantrySoft site: white page, slate
+   boxes, orange buttons, CSUN red. Their orange fails as text on white, so
+   it is only ever a fill with dark text on it. */
 :root {
-  --text: #523f22;
-  --text-h: #2e1f12;
-  --bg: #d2b48c;
-  --surface: #71492c;
-  --surface-ink: #f3e6d2;
-  --border: #a9865f;
-  --code-bg: #efe4cd;
-  --accent: #c2701f;
-  --accent-bg: rgba(194, 112, 31, 0.12);
-  --accent-border: rgba(194, 112, 31, 0.5);
+  --text: #38393b;
+  --text-h: #00213a;
+  --bg: #ffffff;
+  --surface: #426c78;
+  --surface-ink: #ffffff;
+  --border: #7a8a8f;
+  --code-bg: #f1f5f6;
+  --accent: #f68d3d;
+  --accent-bg: rgba(246, 141, 61, 0.12);
+  --accent-border: rgba(246, 141, 61, 0.5);
   /* accent as text on --surface boxes, and text on --accent buttons;
      both picked to meet WCAG 2.1 AA (4.5:1) */
-  --accent-ink: #ffc583;
-  --on-accent: #1f140b;
+  --accent-ink: #ffffff;
+  --on-accent: #1f2022;
+  --brand: #d0202e;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Fredoka', system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -35,34 +39,36 @@
 /* dark mode */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --text: #c7ab87;
-    --text-h: #f1e4cd;
-    --bg: #241910;
-    --surface: #3f2c1a;
-    --surface-ink: #e8d4b8;
-    --border: #5b4530;
-    --code-bg: #352515;
-    --accent: #e2953f;
-    --accent-bg: rgba(226, 149, 63, 0.18);
-    --accent-border: rgba(226, 149, 63, 0.55);
-    --accent-ink: #e2953f;
-    --on-accent: #2e1f12;
+    --text: #c3cdd0;
+    --text-h: #f1f5f6;
+    --bg: #0f1a1e;
+    --surface: #1f3a42;
+    --surface-ink: #e8eef0;
+    --border: #4f6b73;
+    --code-bg: #1a2c32;
+    --accent: #f68d3d;
+    --accent-bg: rgba(246, 141, 61, 0.18);
+    --accent-border: rgba(246, 141, 61, 0.55);
+    --accent-ink: #f9a868;
+    --on-accent: #1a1b1d;
+    --brand: #ff6b75;
   }
 }
 
 :root[data-theme='dark'] {
-  --text: #c7ab87;
-  --text-h: #f1e4cd;
-  --bg: #241910;
-  --surface: #3f2c1a;
-  --surface-ink: #e8d4b8;
-  --border: #5b4530;
-  --code-bg: #352515;
-  --accent: #e2953f;
-  --accent-bg: rgba(226, 149, 63, 0.18);
-  --accent-border: rgba(226, 149, 63, 0.55);
-  --accent-ink: #e2953f;
-  --on-accent: #2e1f12;
+  --text: #c3cdd0;
+  --text-h: #f1f5f6;
+  --bg: #0f1a1e;
+  --surface: #1f3a42;
+  --surface-ink: #e8eef0;
+  --border: #4f6b73;
+  --code-bg: #1a2c32;
+  --accent: #f68d3d;
+  --accent-bg: rgba(246, 141, 61, 0.18);
+  --accent-border: rgba(246, 141, 61, 0.55);
+  --accent-ink: #f9a868;
+  --on-accent: #1a1b1d;
+  --brand: #ff6b75;
 }
 
 body {

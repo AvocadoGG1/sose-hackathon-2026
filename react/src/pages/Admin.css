@@ -3,16 +3,16 @@
   /* match the surface color used for boxes on every other page in light
      mode, instead of the separate lighter "paper" panel this used to use.
      The muted/chart/status colors are lighter than the dark-mode ones so
-     they reach WCAG AA on the light-mode brown (4.5:1 text, 3:1 bars). */
+     they reach WCAG AA on the light-mode slate (4.5:1 text, 3:1 bars). */
   --admin-panel: var(--surface);
   --admin-ink: var(--surface-ink);
-  --admin-muted: #e3cdb0;
-  --admin-line: #5b4530;
-  --chart-donated: #f2a453;
-  --chart-picked: #9fd0f5;
-  --good: #9ee6b6;
-  --warn: #f6c47c;
-  --bad: #ffbcb0;
+  --admin-muted: #dde6e8;
+  --admin-line: #2e4c55;
+  --chart-donated: #f7b27c;
+  --chart-picked: #c9e8ff;
+  --good: #c2f2d2;
+  --warn: #ffe4b8;
+  --bad: #ffdcd4;
 
   justify-content: flex-start;
   align-items: stretch;
@@ -25,28 +25,28 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) .admin-page {
-    --admin-panel: #3f2c1a;
-    --admin-ink: #f1e4cd;
-    --admin-muted: #c7ab87;
-    --admin-line: #5b4530;
-    --chart-donated: #cf7c22;
-    --chart-picked: #3a8fc8;
+    --admin-panel: #1f3a42;
+    --admin-ink: #e8eef0;
+    --admin-muted: #c3cdd0;
+    --admin-line: #4f6b73;
+    --chart-donated: #f68d3d;
+    --chart-picked: #5aaee6;
     --good: #6cc48d;
     --warn: #e9a948;
-    --bad: #ef7a6a;
+    --bad: #f28a7b;
   }
 }
 
 :root[data-theme='dark'] .admin-page {
-  --admin-panel: #3f2c1a;
-  --admin-ink: #f1e4cd;
-  --admin-muted: #c7ab87;
-  --admin-line: #5b4530;
-  --chart-donated: #cf7c22;
-  --chart-picked: #3a8fc8;
+  --admin-panel: #1f3a42;
+  --admin-ink: #e8eef0;
+  --admin-muted: #c3cdd0;
+  --admin-line: #4f6b73;
+  --chart-donated: #f68d3d;
+  --chart-picked: #5aaee6;
   --good: #6cc48d;
   --warn: #e9a948;
-  --bad: #ef7a6a;
+  --bad: #f28a7b;
 }
 
 .admin-page h1 {
@@ -138,7 +138,7 @@
 
 .admin-btn-danger {
   background: var(--bad);
-  color: #2e1f12;
+  color: var(--on-accent);
 }
 
 .admin-btn:disabled,
