@@ -77,8 +77,8 @@ function PasscodeScreen({ onSuccess }) {
           onChange={(e) => setPasscode(e.target.value)}
           required
         />
-        {status === 'wrong' && <p className="admin-error">That passcode didn't work. Check ADMIN_KEY in server/.env.</p>}
-        {status === 'error' && <p className="admin-error">Couldn't reach the server: {errorMessage}</p>}
+        {status === 'wrong' && <p className="admin-error" role="alert">That passcode didn't work. Check ADMIN_KEY in server/.env.</p>}
+        {status === 'error' && <p className="admin-error" role="alert">Couldn't reach the server: {errorMessage}</p>}
         <button type="submit" className="checkout-btn" disabled={status === 'checking'}>
           {status === 'checking' ? 'Checking…' : 'Open dashboard'}
         </button>
@@ -205,7 +205,11 @@ function Dashboard({ onSignOut }) {
 
       <h1>Pantry Dashboard</h1>
 
-      {errorMessage && <p className="admin-error">{errorMessage}</p>}
+      {errorMessage && (
+        <p className="admin-error" role="alert">
+          {errorMessage}
+        </p>
+      )}
 
       {status === 'loading' ? (
         <p className="subtitle">Loading…</p>
@@ -431,7 +435,7 @@ function Dashboard({ onSignOut }) {
                                     </span>
                                   )}
                                 </div>
-                                {itemError?.id === item.id && <p className="admin-error admin-item-error">{itemError.message}</p>}
+                                {itemError?.id === item.id && <p className="admin-error admin-item-error" role="alert">{itemError.message}</p>}
                               </li>
                             )
                           })}

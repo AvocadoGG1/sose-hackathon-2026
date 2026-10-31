@@ -7,8 +7,12 @@
   padding: 14px 18px;
   margin-bottom: 20px;
   text-align: left;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--surface-ink);
+}
+
+.food-groups a {
+  color: var(--accent-ink);
 }
 
 .food-groups-warn {
@@ -30,26 +34,17 @@
   gap: 6px;
   font-family: var(--heading);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   border-radius: 999px;
   padding: 4px 12px;
 }
 
 .food-groups-list .covered {
   background: var(--accent);
-  color: var(--text-h);
+  color: var(--on-accent);
 }
 
 .food-groups-list .missing {
   border: 1.5px dashed var(--accent-border);
   color: var(--surface-ink);
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }

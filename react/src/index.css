@@ -1,5 +1,5 @@
 :root {
-  --text: #6e5c38;
+  --text: #523f22;
   --text-h: #2e1f12;
   --bg: #d2b48c;
   --surface: #71492c;
@@ -9,6 +9,10 @@
   --accent: #c2701f;
   --accent-bg: rgba(194, 112, 31, 0.12);
   --accent-border: rgba(194, 112, 31, 0.5);
+  /* accent as text on --surface boxes, and text on --accent buttons;
+     both picked to meet WCAG 2.1 AA (4.5:1) */
+  --accent-ink: #ffc583;
+  --on-accent: #1f140b;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: 'Fredoka', system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -41,6 +45,8 @@
     --accent: #e2953f;
     --accent-bg: rgba(226, 149, 63, 0.18);
     --accent-border: rgba(226, 149, 63, 0.55);
+    --accent-ink: #e2953f;
+    --on-accent: #2e1f12;
   }
 }
 
@@ -55,6 +61,8 @@
   --accent: #e2953f;
   --accent-bg: rgba(226, 149, 63, 0.18);
   --accent-border: rgba(226, 149, 63, 0.55);
+  --accent-ink: #e2953f;
+  --on-accent: #2e1f12;
 }
 
 body {
@@ -99,4 +107,36 @@ h2 {
 }
 p {
   margin: 0;
+}
+
+/* page content landmark; stretches like #root so .page can still fill the screen */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* one keyboard focus ring everywhere: dark on the page, light inside the brown boxes */
+:focus-visible {
+  outline: 3px solid var(--text-h);
+  outline-offset: 2px;
+}
+
+.food-card :focus-visible,
+.checkout-line :focus-visible,
+.food-groups :focus-visible,
+.most-needed :focus-visible,
+.scale-panel :focus-visible,
+.admin-panel :focus-visible {
+  outline-color: var(--surface-ink);
+}
+
+/* hidden on screen, still read by screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

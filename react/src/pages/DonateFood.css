@@ -12,7 +12,7 @@
 .scale-label {
   font-family: var(--heading);
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 
 .scale-weight {
@@ -23,9 +23,8 @@
 }
 
 .scale-age {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--surface-ink);
-  opacity: 0.85;
   flex: 1;
 }
 
@@ -38,7 +37,7 @@
   padding: 14px 18px;
   margin-bottom: 20px;
   box-shadow: inset 4px 0 0 var(--accent);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--surface-ink);
 }
 
@@ -58,8 +57,8 @@
 .most-needed-list button {
   font-family: var(--heading);
   font-weight: 600;
-  font-size: 13px;
-  color: var(--text-h);
+  font-size: 15px;
+  color: var(--on-accent);
   background: var(--accent);
   border: none;
   border-radius: 999px;
@@ -69,27 +68,21 @@
 
 .most-needed-list button span {
   font-weight: 500;
-  opacity: 0.8;
-}
-
-.most-needed-list button:focus-visible {
-  outline: 2px solid var(--surface-ink);
-  outline-offset: 2px;
 }
 
 .scale-message {
   flex-basis: 100%;
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--surface-ink);
 }
 
 .checkout-form select {
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-h);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--code-bg);
+  border: 1px solid var(--text);
   border-radius: 8px;
   padding: 10px 12px;
 }
@@ -117,7 +110,7 @@
 }
 
 .donate-line-meta {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--surface-ink);
 }
 

@@ -75,7 +75,7 @@ function AdminTrendChart({ data }) {
       </ul>
 
       <div className="trend-plot">
-        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={`Items donated and picked up per day, last ${data.length} days`}>
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="group" aria-label={`Items donated and picked up per day, last ${data.length} days`}>
           {ticks.map((tick) => (
             <g key={tick}>
               <line x1={PAD.left} x2={WIDTH - PAD.right} y1={y(tick)} y2={y(tick)} className="trend-grid" />

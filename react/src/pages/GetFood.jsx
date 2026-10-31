@@ -87,6 +87,8 @@ function GetFood() {
   const cartLines = useCart()
   // food_item_id of the card to briefly highlight after "Recommend food".
   const [recommendedId, setRecommendedId] = useState(null)
+  // read out by screen readers after each cart change
+  const [announcement, setAnnouncement] = useState('')
 
   // loads food list on mount 
   useEffect(() => {
@@ -127,10 +129,12 @@ function GetFood() {
 
   function addToCart(item) {
     Cart.add(item)
+    setAnnouncement(`Added ${item.name} to your cart.`)
   }
 
   function removeFromCart(item) {
     Cart.removeOne(item.food_item_id)
+    setAnnouncement(`Removed one ${item.name} from your cart.`)
   }
 
   // adds one item that still has stock left (accounts for what's already in the cart) to cart.
@@ -182,12 +186,17 @@ function GetFood() {
         </div>
       </div>
 
+      <p className="visually-hidden" role="status">
+        {announcement}
+      </p>
+
       <FoodGroupCheck
         lines={cartLines}
         items={items}
         hint='"Recommend food" picks something from a missing group.'
       />
 
+      <h2 className="visually-hidden">Available food</h2>
       {status === 'loading' ? (
         <p className="subtitle">Loading food list…</p>
       ) : (

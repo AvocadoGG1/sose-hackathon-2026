@@ -372,6 +372,7 @@ function DonateFood() {
 
       {donationItems.length > 0 && (
         <>
+          <h2 className="visually-hidden">Items in this donation</h2>
           <ul className="checkout-list donate-list">
             {donationItems.map((item) => (
               <li key={item.key} className="checkout-line">
@@ -415,7 +416,11 @@ function DonateFood() {
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
             </label>
 
-            {status === 'error' && <p className="checkout-error">{errorMessage}</p>}
+            {status === 'error' && (
+              <p className="checkout-error" role="alert">
+                {errorMessage}
+              </p>
+            )}
 
             <button type="submit" className="checkout-submit-btn" disabled={status === 'submitting'}>
               {status === 'submitting' ? 'Submitting…' : 'Submit donation'}

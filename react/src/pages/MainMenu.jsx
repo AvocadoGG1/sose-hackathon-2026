@@ -5,10 +5,10 @@ function MainMenu() {
   return (
     <section className="page main-menu">
       <div className="title-frame">
-        <span className="corner corner-tl" />
-        <span className="corner corner-tr" />
-        <span className="corner corner-bl" />
-        <span className="corner corner-br" />
+        <span className="corner corner-tl" aria-hidden="true" />
+        <span className="corner corner-tr" aria-hidden="true" />
+        <span className="corner corner-bl" aria-hidden="true" />
+        <span className="corner corner-br" aria-hidden="true" />
         <h1>Better Food Pantry</h1>
       </div>
       <p className="subtitle">Please choose one to get started!</p>

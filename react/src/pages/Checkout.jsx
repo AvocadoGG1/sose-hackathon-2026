@@ -114,6 +114,7 @@ function Checkout() {
       <h1>Checkout</h1>
       <p className="subtitle">Review your order before confirming pickup.</p>
 
+      <h2 className="visually-hidden">Your cart</h2>
       <ul className="checkout-list">
         {lines.map(({ item, quantity }) => (
           <li key={item.food_item_id} className="checkout-line">
@@ -195,7 +196,11 @@ function Checkout() {
           />
         </label>
 
-        {status === 'error' && <p className="checkout-error">{errorMessage}</p>}
+        {status === 'error' && (
+          <p className="checkout-error" role="alert">
+            {errorMessage}
+          </p>
+        )}
 
         <button type="submit" className="checkout-submit-btn" disabled={status === 'submitting'}>
           {status === 'submitting' ? 'Confirming…' : 'Confirm pickup'}
