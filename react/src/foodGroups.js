@@ -33,7 +33,8 @@ export function missingGroups(lines, items) {
 }
 
 // "fruits", "fruits and dairy", "protein, fruits and dairy"
-export function listGroups(groups) {
-  const names = groups.map((group) => group.label.toLowerCase())
-  return names.length <= 1 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`
+// t is useLanguage().t, so the names and the "and" follow the chosen language
+export function listGroups(groups, t) {
+  const names = groups.map((group) => t(`group.${group.key}`).toLowerCase())
+  return names.length <= 1 ? names.join('') : `${names.slice(0, -1).join(', ')} ${t('and')} ${names.at(-1)}`
 }

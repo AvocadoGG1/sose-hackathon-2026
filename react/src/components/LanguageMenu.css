@@ -1,0 +1,85 @@
+/* sits just left of the theme toggle (ThemeToggle.css) and matches its look */
+.language-menu {
+  position: fixed;
+  top: 20px;
+  right: 76px;
+  z-index: 100;
+}
+
+.language-toggle {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--surface-ink);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--accent);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.language-toggle:hover,
+.language-toggle[aria-expanded='true'] {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--accent);
+}
+
+/* orange-framed popover, like the pantry's PantrySoft language menu */
+.language-list {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 170px;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  text-align: left;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.language-list button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.language-list button span {
+  width: 1em;
+  color: var(--text-h);
+}
+
+.language-list button:hover {
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+.language-list button[aria-current='true'] {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+@media (max-width: 480px) {
+  .language-menu {
+    top: 12px;
+    right: 58px;
+  }
+
+  .language-toggle {
+    width: 38px;
+    height: 38px;
+  }
+}

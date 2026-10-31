@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Cart, useCart } from '../cart.js'
 import FoodGroupCheck from '../FoodGroupCheck.jsx'
+import { useLanguage } from '../i18n.jsx'
 import './Pages.css'
 import './Checkout.css'
 
@@ -11,6 +12,7 @@ function Checkout() {
   // same cart as Get Food: [{ item, quantity }], saved to localStorage by cart.js,
   // so a refresh or direct visit still shows it.
   const lines = useCart()
+  const { t, food } = useLanguage()
   const [recipientName, setRecipientName] = useState('')
   const [recipientEmail, setRecipientEmail] = useState('')
   const [notes, setNotes] = useState('')
@@ -81,12 +83,10 @@ function Checkout() {
     return (
       <section className="page checkout-page">
         <div className="checkout-confirmation">
-          <h1>Pickup confirmed!</h1>
-          <p className="subtitle">
-            Order #{pickupId} is ready. Bring this confirmation when you pick up your food.
-          </p>
+          <h1>{t('pickupConfirmed')}</h1>
+          <p className="subtitle">{t('orderReady', pickupId)}</p>
           <Link to="/" className="checkout-submit-btn">
-            Back to Main Menu
+            {t('backToMenuPlain')}
           </Link>
         </div>
       </section>
@@ -97,10 +97,10 @@ function Checkout() {
     return (
       <section className="page checkout-page">
         <Link to="/get-food" className="back-link">
-          ← Back to Get Food
+          {t('backToGetFood')}
         </Link>
-        <h1>Checkout</h1>
-        <p className="subtitle">Your cart is empty. Add some items on the Get Food page first.</p>
+        <h1>{t('checkout')}</h1>
+        <p className="subtitle">{t('cartEmpty')}</p>
       </section>
     )
   }
@@ -108,19 +108,19 @@ function Checkout() {
   return (
     <section className="page checkout-page">
       <Link to="/get-food" className="back-link">
-        ← Back to Get Food
+        {t('backToGetFood')}
       </Link>
 
-      <h1>Checkout</h1>
-      <p className="subtitle">Review your order before confirming pickup.</p>
+      <h1>{t('checkout')}</h1>
+      <p className="subtitle">{t('reviewOrder')}</p>
 
-      <h2 className="visually-hidden">Your cart</h2>
+      <h2 className="visually-hidden">{t('yourCart')}</h2>
       <ul className="checkout-list">
         {lines.map(({ item, quantity }) => (
           <li key={item.food_item_id} className="checkout-line">
             <div className="checkout-line-info">
-              <h3>{item.name}</h3>
-              {item.category && <span className="food-pill">{item.category}</span>}
+              <h3>{food(item.name)}</h3>
+              {item.category && <span className="food-pill">{food(item.category)}</span>}
             </div>
 
             <div className="checkout-line-actions">
@@ -128,7 +128,7 @@ function Checkout() {
                 <button
                   type="button"
                   onClick={() => updateQuantity(item.food_item_id, -1)}
-                  aria-label={`Remove one ${item.name}`}
+                  aria-label={t('removeOne', food(item.name))}
                 >
                   −
                 </button>
@@ -137,7 +137,7 @@ function Checkout() {
                   type="button"
                   onClick={() => updateQuantity(item.food_item_id, 1)}
                   disabled={item.total_quantity != null && quantity >= item.total_quantity}
-                  aria-label={`Add one more ${item.name}`}
+                  aria-label={t('addOneMore', food(item.name))}
                 >
                   +
                 </button>
@@ -147,7 +147,7 @@ function Checkout() {
                 className="checkout-remove-btn"
                 onClick={() => removeLine(item.food_item_id)}
               >
-                Remove
+                {t('remove')}
               </button>
             </div>
           </li>
@@ -157,42 +157,42 @@ function Checkout() {
       <FoodGroupCheck
         lines={lines}
         items={inventory.length > 0 ? inventory : lines.map((line) => line.item)}
-        hint={<Link to="/get-food">Go back to Get Food to add some.</Link>}
+        hint={<Link to="/get-food">{t('goBackToAdd')}</Link>}
       />
 
       <p className="checkout-total">
-        Total: {totalCount} item{totalCount === 1 ? '' : 's'}
+        {t('total', totalCount)}
       </p>
 
       <form className="checkout-form" onSubmit={submitOrder}>
         <label>
-          Name
+          {t('name')}
           <input
             type="text"
             value={recipientName}
             onChange={(e) => setRecipientName(e.target.value)}
-            placeholder="Who's picking this up?"
+            placeholder={t('namePlaceholder')}
             required
           />
         </label>
 
         <label>
-          Email
+          {t('email')}
           <input
             type="email"
             value={recipientEmail}
             onChange={(e) => setRecipientEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t('emailPlaceholder')}
             required
           />
         </label>
 
         <label>
-          Notes (optional)
+          {t('notesOptional')}
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Anything we should know?"
+            placeholder={t('notesPlaceholder')}
           />
         </label>
 
@@ -203,7 +203,7 @@ function Checkout() {
         )}
 
         <button type="submit" className="checkout-submit-btn" disabled={status === 'submitting'}>
-          {status === 'submitting' ? 'Confirming…' : 'Confirm pickup'}
+          {status === 'submitting' ? t('confirming') : t('confirmPickup')}
         </button>
       </form>
     </section>

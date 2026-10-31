@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLanguage } from '../i18n.jsx'
 import './ThemeToggle.css'
 
 function getPreferredTheme() {
@@ -13,6 +14,8 @@ function getPreferredTheme() {
 
 function ThemeToggle() {
   const [theme, setTheme] = useState(getPreferredTheme)
+  const { t } = useLanguage()
+  const label = theme === 'dark' ? t('switchToLight') : t('switchToDark')
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -28,8 +31,8 @@ function ThemeToggle() {
       type="button"
       className="theme-toggle"
       onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={label}
+      title={label}
     >
       {theme === 'dark' ? '☀️' : '🌙'}
     </button>

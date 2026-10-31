@@ -13,8 +13,11 @@ export function isoDateFromToday(days) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
-// '2026-10-25' -> '10/25/2026'. Anything else is returned unchanged.
-export function formatDate(isoDate) {
+// '2026-10-25' -> '10/25/2026' (English) or '25/10/2026' (Spanish, day first).
+// Anything else is returned unchanged.
+export function formatDate(isoDate, lang = 'en') {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate ?? '')
-  return match ? `${match[2]}/${match[3]}/${match[1]}` : isoDate
+  if (!match) return isoDate
+  const [, year, month, day] = match
+  return lang === 'en' ? `${month}/${day}/${year}` : `${day}/${month}/${year}`
 }

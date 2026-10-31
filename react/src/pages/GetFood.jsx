@@ -4,6 +4,7 @@ import { Cart, useCart } from '../cart.js'
 import { formatDate } from '../dates.js'
 import { missingGroups } from '../foodGroups.js'
 import FoodGroupCheck from '../FoodGroupCheck.jsx'
+import { useLanguage } from '../i18n.jsx'
 import './Pages.css'
 import './GetFood.css'
 
@@ -29,6 +30,7 @@ const FALLBACK_ITEMS = [
 // one food item: name/category, how many are left, and cart controls.
 // total_quantity is null when stock isn't tracked for an item
 function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
+  const { t, food, code } = useLanguage()
   // never show negative stock, even if the database view hasn't been updated yet
   const available = item.total_quantity == null ? null : Math.max(item.total_quantity, 0)
   const maxedOut = available !== null && qtyInCart >= available
@@ -36,20 +38,20 @@ function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
   return (
     <li className={highlighted ? 'food-card recommend-highlight' : 'food-card'}>
       <div className="food-card-top">
-        <h3>{item.name}</h3>
-        {item.category && <span className="food-pill">{item.category}</span>}
+        <h3>{food(item.name)}</h3>
+        {item.category && <span className="food-pill">{food(item.category)}</span>}
       </div>
 
       <p className="food-meta">
-        {available !== null ? `${available} available` : 'Stock unknown'}
-        {item.earliest_expiration && ` · best before ${formatDate(item.earliest_expiration)}`}
+        {available !== null ? t('available', available) : t('stockUnknown')}
+        {item.earliest_expiration && ` · ${t('bestBefore', formatDate(item.earliest_expiration, code))}`}
       </p>
 
       <div className="food-card-actions">
         {qtyInCart > 0 ? (
           // already in the cart - show a +/- stepper instead of  Add button.
           <div className="qty-stepper">
-            <button type="button" onClick={() => onRemove(item)} aria-label={`Remove one ${item.name}`}>
+            <button type="button" onClick={() => onRemove(item)} aria-label={t('removeOne', food(item.name))}>
               −
             </button>
             <span>{qtyInCart}</span>
@@ -57,7 +59,7 @@ function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
               type="button"
               onClick={() => onAdd(item)}
               disabled={maxedOut}
-              aria-label={`Add one more ${item.name}`}
+              aria-label={t('addOneMore', food(item.name))}
             >
               +
             </button>
@@ -69,7 +71,7 @@ function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
             onClick={() => onAdd(item)}
             disabled={available === 0}
           >
-            {available === 0 ? 'Out of stock' : 'Add to cart'}
+            {available === 0 ? t('outOfStock') : t('addToCart')}
           </button>
         )}
       </div>
@@ -79,6 +81,7 @@ function FoodCard({ item, qtyInCart, onAdd, onRemove, highlighted }) {
 
 function GetFood() {
   const navigate = useNavigate()
+  const { t, food } = useLanguage()
   const [items, setItems] = useState([])
   // loads, 'offline' if the API couldn't be reached.
   const [status, setStatus] = useState('loading')
@@ -129,12 +132,12 @@ function GetFood() {
 
   function addToCart(item) {
     Cart.add(item)
-    setAnnouncement(`Added ${item.name} to your cart.`)
+    setAnnouncement(t('addedToCart', food(item.name)))
   }
 
   function removeFromCart(item) {
     Cart.removeOne(item.food_item_id)
-    setAnnouncement(`Removed one ${item.name} from your cart.`)
+    setAnnouncement(t('removedFromCart', food(item.name)))
   }
 
   // adds one item that still has stock left (accounts for what's already in the cart) to cart.
@@ -161,27 +164,27 @@ function GetFood() {
   return (
     <section className="page food-page">
       <Link to="/" className="back-link">
-        ← Back to Main Menu
+        {t('backToMenu')}
       </Link>
 
-      <h1>Get Food</h1>
-      <p className="subtitle">Browse what's available and build your cart.</p>
+      <h1>{t('getFood')}</h1>
+      <p className="subtitle">{t('getFoodSubtitle')}</p>
     {/* checks for server */}
       {status === 'offline' && (
         <p className="offline-banner">
-          Can't reach the server right now — showing example items instead.
+          {t('offlineExamples')}
         </p>
       )}
 
       <div className="food-toolbar">
         <button type="button" className="recommend-btn" onClick={recommendFood} disabled={status === 'loading'}>
-          Recommend food
+          {t('recommendFood')}
         </button>
 
         <div className="cart-summary">
-          <span>Cart: {cartCount} item{cartCount === 1 ? '' : 's'}</span>
+          <span>{t('cartCount', cartCount)}</span>
           <button type="button" className="checkout-btn" onClick={goToCheckout} disabled={cartCount === 0}>
-            Checkout
+            {t('checkout')}
           </button>
         </div>
       </div>
@@ -193,12 +196,12 @@ function GetFood() {
       <FoodGroupCheck
         lines={cartLines}
         items={items}
-        hint='"Recommend food" picks something from a missing group.'
+        hint={t('recommendHint')}
       />
 
-      <h2 className="visually-hidden">Available food</h2>
+      <h2 className="visually-hidden">{t('availableFood')}</h2>
       {status === 'loading' ? (
-        <p className="subtitle">Loading food list…</p>
+        <p className="subtitle">{t('loadingFood')}</p>
       ) : (
         <ul className="food-grid">
           {items.map((item) => (

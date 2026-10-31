@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatDate, isoDateFromToday, MIN_DAYS_BEFORE_EXPIRY } from '../dates.js'
 import { FOOD_GROUPS, groupsInStock, listGroups } from '../foodGroups.js'
+import { useLanguage } from '../i18n.jsx'
 import './Pages.css'
 import './GetFood.css'
 import './Checkout.css'
@@ -70,6 +71,7 @@ const LOW_STOCK = 2
 // "We're low on": the lowest-stock foods, plus food groups with nothing left.
 // Tapping a food picks it in the form. Hidden when nothing is low.
 function MostNeeded({ foodItems, onPick }) {
+  const { t, food } = useLanguage()
   const low = foodItems
     .filter((item) => item.total_quantity != null && item.total_quantity <= LOW_STOCK)
     .sort((a, b) => a.total_quantity - b.total_quantity)
@@ -83,17 +85,17 @@ function MostNeeded({ foodItems, onPick }) {
 
   return (
     <div className="most-needed">
-      <span className="scale-label">We're low on</span>
+      <span className="scale-label">{t('lowOn')}</span>
       <ul className="most-needed-list">
         {low.map((item) => (
           <li key={item.food_item_id}>
             <button type="button" onClick={() => onPick(item)}>
-              {item.name} <span>{item.total_quantity === 0 ? 'none left' : `${item.total_quantity} left`}</span>
+              {food(item.name)} <span>{item.total_quantity === 0 ? t('noneLeft') : t('left', item.total_quantity)}</span>
             </button>
           </li>
         ))}
       </ul>
-      {emptyGroups.length > 0 && <p>Nothing left in {listGroups(emptyGroups)}.</p>}
+      {emptyGroups.length > 0 && <p>{t('nothingLeftIn', listGroups(emptyGroups, t))}</p>}
     </div>
   )
 }
@@ -101,6 +103,7 @@ function MostNeeded({ foodItems, onPick }) {
 const EMPTY_ENTRY ={ foodItemId: '', quantity: 1, expirationDate: '', weightGrams: '', scaleReadingId: null }
 
 function DonateFood() {
+  const { t, food: foodName, code } = useLanguage()
   const [foodItems, setFoodItems] = useState([])
   const [status, setStatus] = useState('loading') // loading | ready | offline | submitting | done | error
   const [errorMessage, setErrorMessage] = useState('')
@@ -152,7 +155,7 @@ function DonateFood() {
 
   // best-before dates earlier than this are refused (no food that's about to expire)
   const earliestBestBefore = isoDateFromToday(MIN_DAYS_BEFORE_EXPIRY)
-  const tooSoonMessage = `Sorry, we can't accept food that's this close to expiring. The best-before date needs to be ${formatDate(earliestBestBefore)} or later.`
+  const tooSoonMessage = t('tooSoon', formatDate(earliestBestBefore, code))
   const expiresTooSoon = (date) => Boolean(date) && date < earliestBestBefore
 
   function findFood(foodItemId) {
@@ -195,13 +198,13 @@ function DonateFood() {
       // don't auto-add food that's about to expire; keep the weight in case the date was a typo
       updateEntry({ weightGrams, scaleReadingId: reading.id })
       setDateError(tooSoonMessage)
-      setScaleMessage(`Weighed ${weightGrams} g, but this ${food.name} expires too soon to accept.`)
+      setScaleMessage(t('weighedTooSoon', weightGrams, foodName(food.name)))
     } else if (food) {
       pushItem({ ...entry, weightGrams, scaleReadingId: reading.id }, food)
-      setScaleMessage(`Added ${food.name}, ${weightGrams} g. Choose the next food, then swap the item on the scale.`)
+      setScaleMessage(t('scaleAdded', foodName(food.name), weightGrams))
     } else {
       updateEntry({ weightGrams, scaleReadingId: reading.id })
-      setScaleMessage(`Weighed ${weightGrams} g. Choose which food it is, then press Add to donation.`)
+      setScaleMessage(t('scaleWeighed', weightGrams))
     }
   }
 
@@ -247,10 +250,10 @@ function DonateFood() {
     return (
       <section className="page checkout-page">
         <div className="checkout-confirmation">
-          <h1>Thank you!</h1>
-          <p className="subtitle">Donation #{donationId} was received and added to the pantry.</p>
+          <h1>{t('thankYou')}</h1>
+          <p className="subtitle">{t('donationReceived', donationId)}</p>
           <Link to="/" className="checkout-submit-btn">
-            Back to Main Menu
+            {t('backToMenuPlain')}
           </Link>
         </div>
       </section>
@@ -260,14 +263,14 @@ function DonateFood() {
   return (
     <section className="page food-page">
       <Link to="/" className="back-link">
-        ← Back to Main Menu
+        {t('backToMenu')}
       </Link>
 
-      <h1>Donate Food</h1>
-      <p className="subtitle">Choose a food, then place it on the scale. It's added when the weight settles.</p>
+      <h1>{t('donateFood')}</h1>
+      <p className="subtitle">{t('donateSubtitle')}</p>
 
       {status === 'offline' && (
-        <p className="offline-banner">Can't reach the server right now, so donations can't be submitted.</p>
+        <p className="offline-banner">{t('offlineDonate')}</p>
       )}
 
       <MostNeeded
@@ -276,17 +279,17 @@ function DonateFood() {
       />
 
       <div className="scale-panel">
-        <span className="scale-label">Scale</span>
+        <span className="scale-label">{t('scale')}</span>
         {scaleReading ? (
           <>
             <span className="scale-weight">{Number(scaleReading.weight_grams)} g</span>
-            <span className="scale-age">{secondsAgo(scaleReading.recorded_at)}s ago</span>
+            <span className="scale-age">{t('secondsAgo', secondsAgo(scaleReading.recorded_at))}</span>
             <button type="button" className="checkout-btn" onClick={applyScaleWeight}>
-              Use this weight
+              {t('useThisWeight')}
             </button>
           </>
         ) : (
-          <span className="scale-age">Place food on the scale to weigh it.</span>
+          <span className="scale-age">{t('placeOnScale')}</span>
         )}
         {scaleMessage && (
           <p className="scale-message" role="status">
@@ -297,17 +300,17 @@ function DonateFood() {
 
       <form className="checkout-form donate-entry" onSubmit={addItem}>
         <label>
-          Food
+          {t('food')}
           <select
             value={entry.foodItemId}
             onChange={(e) => updateEntry({ foodItemId: e.target.value })}
             required
             disabled={status === 'loading' || status === 'offline'}
           >
-            <option value="">{status === 'loading' ? 'Loading…' : 'Choose an item'}</option>
+            <option value="">{status === 'loading' ? t('loading') : t('chooseItem')}</option>
             {foodItems.map((item) => (
               <option key={item.food_item_id} value={String(item.food_item_id)}>
-                {item.name}
+                {foodName(item.name)}
               </option>
             ))}
           </select>
@@ -315,7 +318,7 @@ function DonateFood() {
 
         <div className="donate-row">
           <label>
-            Quantity
+            {t('quantity')}
             <input
               type="number"
               min="1"
@@ -327,7 +330,7 @@ function DonateFood() {
           </label>
 
           <label>
-            Weight (g, optional)
+            {t('weightOptional')}
             <input
               type="number"
               min="0"
@@ -335,12 +338,12 @@ function DonateFood() {
               value={entry.weightGrams}
               // typing a weight by hand means it didn't come from the scale
               onChange={(e) => updateEntry({ weightGrams: e.target.value, scaleReadingId: null })}
-              placeholder={scaleReading ? 'Use the scale above' : ''}
+              placeholder={scaleReading ? t('useScaleAbove') : ''}
             />
           </label>
 
           <label>
-            Best before (optional)
+            {t('bestBeforeOptional')}
             <input
               type="date"
               min={earliestBestBefore}
@@ -366,29 +369,29 @@ function DonateFood() {
         )}
 
         <button type="submit" className="recommend-btn donate-add-btn" disabled={status === 'loading' || status === 'offline'}>
-          Add to donation
+          {t('addToDonation')}
         </button>
       </form>
 
       {donationItems.length > 0 && (
         <>
-          <h2 className="visually-hidden">Items in this donation</h2>
+          <h2 className="visually-hidden">{t('itemsInDonation')}</h2>
           <ul className="checkout-list donate-list">
             {donationItems.map((item) => (
               <li key={item.key} className="checkout-line">
                 <div className="checkout-line-info">
-                  <h3>{item.food.name}</h3>
-                  {item.food.category && <span className="food-pill">{item.food.category}</span>}
+                  <h3>{foodName(item.food.name)}</h3>
+                  {item.food.category && <span className="food-pill">{foodName(item.food.category)}</span>}
                 </div>
                 <div className="checkout-line-actions">
                   <span className="donate-line-meta">
                     ×{item.quantity}
                     {item.weightGrams != null && ` · ${item.weightGrams} g`}
-                    {item.scaleReadingId != null && ' (scale)'}
-                    {item.expirationDate && ` · best before ${formatDate(item.expirationDate)}`}
+                    {item.scaleReadingId != null && t('fromScale')}
+                    {item.expirationDate && ` · ${t('bestBefore', formatDate(item.expirationDate, code))}`}
                   </span>
                   <button type="button" className="checkout-remove-btn" onClick={() => removeItem(item.key)}>
-                    Remove
+                    {t('remove')}
                   </button>
                 </div>
               </li>
@@ -397,22 +400,22 @@ function DonateFood() {
 
           <form className="checkout-form" onSubmit={submitDonation}>
             <label>
-              Your name (optional)
+              {t('yourNameOptional')}
               <input type="text" value={donorName} onChange={(e) => setDonorName(e.target.value)} />
             </label>
 
             <label>
-              Email (optional)
+              {t('emailOptional')}
               <input
                 type="email"
                 value={donorEmail}
                 onChange={(e) => setDonorEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('emailPlaceholder')}
               />
             </label>
 
             <label>
-              Notes (optional)
+              {t('notesOptional')}
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
             </label>
 
@@ -423,7 +426,7 @@ function DonateFood() {
             )}
 
             <button type="submit" className="checkout-submit-btn" disabled={status === 'submitting'}>
-              {status === 'submitting' ? 'Submitting…' : 'Submit donation'}
+              {status === 'submitting' ? t('submitting') : t('submitDonation')}
             </button>
           </form>
         </>
